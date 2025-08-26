@@ -24,15 +24,16 @@ cd <nombre-del-proyecto>
 python -m venv .venv
 ```
 3. **Activar el entorno virtual**:
-PowerShell
+
+PowerShell:
 ```bash
 .venv\Scripts\Activate.ps1
 ```
-cmd
+CMD:
 ```bash
 .venv\Scripts\activate.bat
 ```
-Git Bash / Unix
+Git Bash / Unix:
 ```bash
 source .venv/Scripts/activate
 ```
