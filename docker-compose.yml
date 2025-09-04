@@ -9,7 +9,7 @@ services:
       - ollama:/root/.ollama
     environment:
       - OLLAMA_KEEP_ALIVE=24h
-    # opcionales para forzar uso de GPU al máximo
+      # opcionales para forzar uso de GPU al máximo
       - OLLAMA_GPU_LAYERS=-1   # intenta poner todas las capas posibles en GPU
       # - OLLAMA_NUM_GPU=1
     gpus: all
@@ -45,6 +45,16 @@ services:
       - MODEL_NAME=deepseek-r1:8b
     ports:
       - "8501:8501"
+    restart: unless-stopped
+
+  # ====== ⤵️ Túnel público (efímero) con Cloudflare ======
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cf-tunnel
+    # Publica http://app:8501 en una URL https://<algo>.trycloudflare.com
+    command: tunnel --no-autoupdate --url http://app:8501
+    depends_on:
+      - app
     restart: unless-stopped
 
 volumes:
