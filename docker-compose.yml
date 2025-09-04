@@ -1,0 +1,51 @@
+version: "3.9"
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    # opcionales para forzar uso de GPU al máximo
+      - OLLAMA_GPU_LAYERS=-1   # intenta poner todas las capas posibles en GPU
+      # - OLLAMA_NUM_GPU=1
+    gpus: all
+    restart: unless-stopped
+
+  model-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - MODEL_NAME=deepseek-r1:8b
+    entrypoint: ["/bin/sh","-lc",
+      "echo 'Esperando a Ollama...' ; \
+       for i in $(seq 1 60); do \
+         ollama list >/dev/null 2>&1 && break || sleep 2; \
+       done ; \
+       echo 'Haciendo pull de $MODEL_NAME' ; \
+       ollama pull $MODEL_NAME || true"
+    ]
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: streamlit-app
+    depends_on:
+      - ollama
+      - model-pull
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - MODEL_NAME=deepseek-r1:8b
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+
+volumes:
+  ollama:
