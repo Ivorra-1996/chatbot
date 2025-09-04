@@ -11,7 +11,7 @@ def clean_response(text):
 def get_ai_response(message):
     try:
         response = ollama.chat(
-            model="deepseek-r1:1.5b",
+            model="deepseek-r1:8b",
             messages=[{'role': 'user', 'content': message}],
         )
         return clean_response(response['message']['content'])
